@@ -1,9 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import Logo from "../components/Logo";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import * as openpgp from "openpgp";
 function Registration() {
-  function handleSubmit(e) {
+  const API_URL = import.meta.env.VITE_API_URL;
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  async function handleSubmit(e) {
     e.preventDefault();
+    const { privateKey, publicKey } = await openpgp.generateKey({
+      type: "rsa",
+      rsaBits: 2048,
+      userIDs: [{ name: username }],
+      passphrase: password,
+    });
+    try {
+      const responce = await axios.post(`${API_URL}/auth/registration`, {
+        username,
+        password,
+        email,
+        publicKey,
+      });
+      if (responce.data.success) {
+        localStorage.setItem(`privateKey-${username}`, privateKey);
+        navigate("/login");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
   return (
     <div className="min-h-screen flex items-center justify-center bg-bgcolor">
@@ -19,6 +46,8 @@ function Registration() {
               Username
             </label>
             <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               type="text"
               placeholder="Enter username"
               className="w-full px-5 py-2 bg-white rounded-xl"
@@ -30,6 +59,8 @@ function Registration() {
               E-mail
             </label>
             <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               type="email"
               placeholder="Enter e-mail"
               className="w-full px-5 py-2 bg-white rounded-xl"
@@ -41,6 +72,9 @@ function Registration() {
               Password
             </label>
             <input
+              value={password}
+              minLength="8"
+              onChange={(e) => setPassword(e.target.value)}
               type="password"
               placeholder="Enter password"
               className="w-full px-5 py-2 bg-white rounded-xl"
