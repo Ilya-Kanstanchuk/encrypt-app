@@ -5,6 +5,7 @@ import axios from "axios";
 import * as openpgp from "openpgp";
 import { useAuth } from "../context/ContextProvider";
 function Login() {
+  const [errorMessage, setErrorMessage] = useState("");
   const API_URL = import.meta.env.VITE_API_URL;
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -13,11 +14,11 @@ function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const responce = await axios.post(`${API_URL}/auth/login`, {
+      const response = await axios.post(`${API_URL}/auth/login`, {
         username,
         password,
       });
-      if (responce.data.success) {
+      if (response.data.success) {
         const encryptedPrivateKey = localStorage.getItem(
           `privateKey-${username}`
         );
@@ -36,12 +37,13 @@ function Login() {
           "decryptedPrivateKey",
           decryptedPrivateKey.armor()
         );
-        localStorage.setItem("token", responce.data.token);
-        login(responce.data.user, decryptedPrivateKey);
+        localStorage.setItem("token", response.data.token);
+        login(response.data.user, decryptedPrivateKey);
         navigate("/");
       }
     } catch (error) {
       console.log(error.message);
+      setErrorMessage(error.response.data.message);
     }
   }
   return (
@@ -80,7 +82,12 @@ function Login() {
               required
             />
           </div>
-          <div className="flex items-center justify-center mt-7  mb-3">
+          <div className="flex flex-col items-center justify-center mt-7  mb-3">
+            {errorMessage && (
+              <div className="text-red-600 text-[17px] text-center mb-4">
+                {errorMessage}
+              </div>
+            )}
             <button
               type="submit"
               className="py-2 px-15 bg-blue-300 rounded-xl cursor-pointer text-center font-medium"

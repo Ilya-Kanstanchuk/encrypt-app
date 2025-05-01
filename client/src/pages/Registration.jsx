@@ -20,20 +20,21 @@ function Registration() {
       passphrase: password,
     });
     try {
-      const responce = await axios.post(`${API_URL}/auth/registration`, {
+      const response = await axios.post(`${API_URL}/auth/registration`, {
         username,
         password,
         email,
         publicKey,
       });
-      if (responce.data.success) {
+      if (response.data.success) {
         localStorage.setItem(`privateKey-${username}`, privateKey);
         navigate("/login");
       } else {
-        setErrorMessage(responce.data.message);
+        setErrorMessage(response.data.message);
       }
     } catch (error) {
       console.log(error);
+      setErrorMessage(error.response.data.message);
     }
   }
   return (
@@ -85,7 +86,12 @@ function Registration() {
               required
             />
           </div>
-          <div className="flex items-center justify-center mt-7  mb-3">
+          <div className="flex flex-col items-center justify-center mt-7  mb-3">
+            {errorMessage && (
+              <div className="text-red-600 text-[17px] text-center mb-4">
+                {errorMessage}
+              </div>
+            )}
             <button
               type="submit"
               className="py-2 px-15 bg-blue-300 rounded-xl cursor-pointer text-center font-medium"
@@ -94,7 +100,6 @@ function Registration() {
             </button>
           </div>
           <div className="flex justify-center items-center">
-            <p>{errorMessage}</p>
             <p>
               Already have an account?
               <Link to="/login" className="text-blue-500">
