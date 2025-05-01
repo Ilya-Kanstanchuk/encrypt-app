@@ -3,8 +3,10 @@ import Logo from "../components/Logo";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import * as openpgp from "openpgp";
+
 function Registration() {
   const API_URL = import.meta.env.VITE_API_URL;
+  const [errorMessage, setErrorMessage] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,6 +29,8 @@ function Registration() {
       if (responce.data.success) {
         localStorage.setItem(`privateKey-${username}`, privateKey);
         navigate("/login");
+      } else {
+        setErrorMessage(responce.data.message);
       }
     } catch (error) {
       console.log(error);
@@ -90,6 +94,7 @@ function Registration() {
             </button>
           </div>
           <div className="flex justify-center items-center">
+            <p>{errorMessage}</p>
             <p>
               Already have an account?
               <Link to="/login" className="text-blue-500">
