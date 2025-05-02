@@ -5,6 +5,9 @@
 @theme {
   --color-bgcolor: #313131;
   --color-formcolor: #bfbcbc;
+  --color-logcolor: #686868;
+  --color-pickbgcolor: #d8374c;
+  --color-picktxtcolor: #380101;
   --font-mono: "IBM Plex Mono", monospace;
 }
 

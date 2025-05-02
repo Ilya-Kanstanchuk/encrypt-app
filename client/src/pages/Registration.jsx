@@ -39,7 +39,9 @@ function Registration() {
   }
   return (
     <div className="min-h-screen flex items-center justify-center bg-bgcolor">
-      <Logo />
+      <div className="fixed top-5 left-5">
+        <Logo />
+      </div>
       <div className="bg-formcolor rounded-xl py-10 px-10">
         <div className="flex flex-col items-center justify-center mb-7">
           <h1 className="text-5xl font-semibold">Welcome!</h1>
