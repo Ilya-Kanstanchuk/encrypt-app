@@ -4,7 +4,7 @@ function About() {
   const { user, privateKey } = useAuth();
   return (
     <div>
-      <p>{user.id}</p>
+      <p>{user.username}</p>
       <p>{privateKey.armor()}</p>
     </div>
   );
