@@ -4,13 +4,44 @@ import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import icon from "../assets/searchi.png";
 import axios from "axios";
+import * as openpgp from "openpgp";
 function Start() {
   const [userMessage, setUserMessage] = useState();
   const [username, setUsername] = useState("");
   const [publicKey, setPublicKey] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [messageToSend, setMessageToSend] = useState("");
+  const [messageToDecrypt, setMessageToDecrypt] = useState("");
+  const [decryptedMessage, setDecryptedMessage] = useState("");
+  const { privateKey } = useAuth();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
+  async function encryptMessage() {
+    const pk = await openpgp.readKey({
+      armoredKey: publicKey,
+    });
+    const encrypted = await openpgp.encrypt({
+      message: await openpgp.createMessage({ text: userMessage }),
+      encryptionKeys: pk,
+    });
+    setMessageToSend(encrypted);
+  }
+  async function decryptMessage() {
+    try {
+      const message = await openpgp.readMessage({
+        armoredMessage: messageToDecrypt,
+      });
+
+      const { data: decryptedText } = await openpgp.decrypt({
+        message,
+        decryptionKeys: privateKey,
+      });
+      setDecryptedMessage(decryptedText);
+    } catch (error) {
+      console.log(error);
+      setDecryptedMessage("WARNING: INVALID MESSAGE");
+    }
+  }
   async function handleSubmit(e) {
     e.preventDefault();
     try {
@@ -90,7 +121,10 @@ function Start() {
                       id="message"
                       rows={6}
                     ></textarea>
-                    <button className="px-11 py-1 bg-logcolor rounded-xl text-white font-bold cursor-pointer">
+                    <button
+                      onClick={encryptMessage}
+                      className="px-11 py-1 bg-logcolor rounded-xl text-white font-bold cursor-pointer"
+                    >
                       Apply
                     </button>
                   </div>
@@ -100,6 +134,7 @@ function Start() {
                     Encrypted message
                   </label>
                   <textarea
+                    value={messageToSend}
                     className="bg-white w-[300px] py-2 px-8 rounded-xl text-xl font-medium focus:outline-none"
                     name=""
                     id="message"
@@ -120,12 +155,17 @@ function Start() {
                 </label>
                 <div className="flex items-start gap-4">
                   <textarea
+                    value={messageToDecrypt}
+                    onChange={(e) => setMessageToDecrypt(e.target.value)}
                     className="bg-white w-[300px] py-2 px-8 rounded-xl text-xl font-medium focus:outline-none"
                     name=""
                     id="message"
                     rows={6}
                   ></textarea>
-                  <button className="px-11 py-1 bg-logcolor rounded-xl text-white font-bold cursor-pointer">
+                  <button
+                    onClick={decryptMessage}
+                    className="px-11 py-1 bg-logcolor rounded-xl text-white font-bold cursor-pointer"
+                  >
                     Apply
                   </button>
                 </div>
@@ -135,6 +175,7 @@ function Start() {
                   Decrypted message
                 </label>
                 <textarea
+                  value={decryptedMessage}
                   className="bg-white w-[300px] py-2 px-8 rounded-xl text-xl font-medium focus:outline-none"
                   name=""
                   id="message"
