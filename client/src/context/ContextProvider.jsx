@@ -40,6 +40,8 @@ function ContextProvider({ children }) {
     if (armored) {
       const key = await openpgp.readPrivateKey({ armoredKey: armored });
       setPrivateKey(key);
+    } else {
+      logout();
     }
   }
   async function verifyBoth() {

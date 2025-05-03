@@ -1,9 +1,7 @@
 import React from "react";
-import { useAuth } from "../context/ContextProvider";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 function About() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   return (
     <div className="bg-bgcolor min-h-screen">
